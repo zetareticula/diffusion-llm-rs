@@ -1,0 +1,106 @@
+pub mod kvquant {
+    use super::*;
+    use half::f16;
+    
+    pub struct PrefillKVQuant {
+        quantizers: Vec<Box<dyn Quantizer>>,
+        kv_cache: Arc<RwLock<KVCache>>,
+        compression_ratio: f32,
+    }
+    
+    pub trait Quantizer: Send + Sync {
+        fn quantize(&self, input: &[f32], bits: u8) -> Vec<u8>;
+        fn dequantize(&self, input: &[u8], bits: u8) -> Vec<f32>;
+    }
+    
+    pub struct BitQuantizer {
+        scale: f32,
+        zero_point: f32,
+    }
+    
+    impl Quantizer for BitQuantizer {
+        fn quantize(&self, input: &[f32], bits: u8) -> Vec<u8> {
+            let max_val = (1 << bits) - 1;
+            input.iter().map(|&x| {
+                let scaled = (x - self.zero_point) / self.scale;
+                (scaled.clamp(0.0, max_val as f32) as u8)
+            }).collect()
+        }
+        
+        fn dequantize(&self, input: &[u8], bits: u8) -> Vec<f32> {
+            input.iter().map(|&x| {
+                x as f32 * self.scale + self.zero_point
+            }).collect()
+        }
+    }
+    
+    pub struct KVCache {
+        keys: DashMap<String, CompressedVector>,
+        values: DashMap<String, CompressedVector>,
+        metadata: CacheMetadata,
+    }
+    
+    #[derive(Debug, Clone)]
+    pub struct CompressedVector {
+        pub id: String,
+        pub data: Vec<u8>,
+        pub bits: u8,
+        pub original_shape: Vec<usize>,
+    }
+    
+    #[derive(Debug, Clone)]
+    pub struct CacheMetadata {
+        pub total_size: usize,
+        pub compression_ratio: f32,
+        pub num_vectors: usize,
+    }
+    
+    impl PrefillKVQuant {
+        pub fn new(config: &SystemConfig) -> Result<Self> {
+            let quantizers: Vec<Box<dyn Quantizer>> = config.quantization_bits
+                .iter()
+                .map(|&bits| {
+                    Box::new(BitQuantizer {
+                        scale: 1.0 / ((1 << bits) - 1) as f32,
+                        zero_point: 0.0,
+                    }) as Box<dyn Quantizer>
+                })
+                .collect();
+            
+            Ok(Self {
+                quantizers,
+                kv_cache: Arc::new(RwLock::new(KVCache {
+                    keys: DashMap::new(),
+                    values: DashMap::new(),
+                    metadata: CacheMetadata {
+                        total_size: 0,
+                        compression_ratio: 1.0,
+                        num_vectors: 0,
+                    },
+                })),
+                compression_ratio: 1.0,
+            })
+        }
+        
+        pub fn quantize_vectors(&self, 
+                               tokens: &[diffuse_llm::TokenizedVector], 
+                               bits: &[u8]) -> Result<Vec<CompressedVector>> {
+            let mut compressed = Vec::new();
+            
+            for (token, &bit_precision) in tokens.iter().zip(bits.iter().cycle()) {
+                let quantizer = &self.quantizers[bit_precision as usize / 2];
+                let flat_embeddings: Vec<f32> = token.embeddings.iter().copied().collect();
+                let quantized_data = quantizer.quantize(&flat_embeddings, bit_precision);
+                
+                compressed.push(CompressedVector {
+                    id: token.id.clone(),
+                    data: quantized_data,
+                    bits: bit_precision,
+                    original_shape: vec![token.embeddings.nrows(), token.embeddings.ncols()],
+                });
+            }
+            
+            Ok(compressed)
+        }
+    }
+}

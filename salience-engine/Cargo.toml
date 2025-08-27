@@ -1,0 +1,14 @@
+[package]
+name = "salience-engine"
+version = "0.1.0"
+edition = "2021"
+description = "Salience scoring and cache optimization engine"
+
+[lib]
+name = "salience_engine"
+path = "src/lib.rs"
+
+[dependencies]
+# Add dependencies specific to this crate here
+dashmap = "5.5"
+parking_lot = "0.12"

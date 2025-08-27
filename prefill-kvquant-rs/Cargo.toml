@@ -1,0 +1,13 @@
+[package]
+name = "prefill-kvquant-rs"
+version = "0.1.0"
+edition = "2021"
+description = "KV cache quantization for efficient prefilling"
+
+[lib]
+name = "prefill_kvquant_rs"
+path = "lib.rs"
+
+[dependencies]
+# Add dependencies specific to this crate here
+serde = { version = "1.0", features = ["derive"] }
