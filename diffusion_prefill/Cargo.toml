@@ -1,0 +1,36 @@
+[package]
+name = "diffusion-prefill"
+version = "0.1.0"
+edition = "2021"
+description = "Diffusion Prefill Cache System with Bit-Precise Operations"
+
+[lib]
+name = "diffusion_prefill"
+path = "src/lib.rs"
+
+[dependencies]
+# Core dependencies
+anyhow = "1.0"
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+
+# Data processing
+dashmap = "5.5"
+ndarray = "0.15"
+petgraph = "0.6.0"
+rand = "0.8.5"
+
+# Specialized types
+half = { version = "2.2", features = ["serde"] }
+
+# Async runtime
+tokio = { version = "1.0", features = ["full"] }
+
+# Tokenization
+tokenizers = { version = "0.13", default-features = false, features = ["onig"] }
+
+# Time handling
+chrono = { version = "0.4", features = ["serde"] }
+
+[dev-dependencies]
+tokio = { version = "1.0", features = ["rt-multi-thread", "macros"] }

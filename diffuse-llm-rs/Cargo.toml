@@ -8,7 +8,63 @@ description = "Diffusion-based language model implementation"
 name = "diffuse_llm_rs"
 path = "src/lib.rs"
 
+[features]
+default = []
+cuda = ["dep:candle-core", "dep:candle-nn", "candle-core/cuda", "candle-nn/cuda"]
+
 [dependencies]
-# Add dependencies specific to this crate here
-serde = { version = "1.0", features = ["derive"] }
+# Core dependencies
+anyhow = "1.0"
+thiserror = "1.0"
 tokio = { version = "1.35", features = ["full"] }
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+async-trait = "0.1.77"
+
+# Math and arrays
+ndarray = { version = "0.15", features = ["rayon", "approx"] }
+ndarray-rand = "0.14"
+rand = "0.8"
+rand_chacha = "0.3"
+approx = "0.5"
+half = "2.2"
+
+# Quantization
+quantiles = "0.7"
+byteorder = "1.5"
+bytemuck = { version = "1.14", features = ["derive"] }
+
+# Deep learning (optional)
+candle-core = { version = "0.9.1", optional = true }
+candle-nn = { version = "0.9.1", optional = true }
+
+# Tokenization
+tokenizers = { version = "0.13.4", default-features = false, features = ["http", "onig"] }
+
+# Parallel processing
+rayon = "1.8"
+
+# Memory management
+memmap2 = "0.9"
+
+# Concurrency
+dashmap = "5.5"
+num_cpus = "1.16"
+
+# Logging and metrics
+tracing = "0.1"
+tracing-subscriber = { version = "0.3", features = ["env-filter"] }
+
+# Serialization
+bincode = "1.3"
+
+[dev-dependencies]
+tempfile = "3.9"
+rstest = "0.18"
+approx = "0.5"
+dashmap = "5.5"
+num_cpus = "1.16"
+ndarray = "0.15"
+half = { version = "2.2", features = ["serde"] }
+rand = "0.8.5"
+tokenizers = "0.22.0"

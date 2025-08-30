@@ -9,6 +9,12 @@ name = "ns_router_rs"
 path = "src/lib.rs"
 
 [dependencies]
-# Add dependencies specific to this crate here
 petgraph = "0.6"
 dashmap = "5.5"
+anyhow = "1.0"
+thiserror = "1.0"
+tracing = "0.1"
+serde = { version = "1.0", features = ["derive"] }
+rand = { version = "0.8.5", features = ["small_rng"] }
+rayon = "1.8"
+prefill-kvquant-rs = { path = "../prefill-kvquant-rs" }

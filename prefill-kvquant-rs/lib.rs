@@ -1,6 +1,12 @@
+use std::sync::{Arc, RwLock};
+use dashmap::DashMap;
+use half::f16;
+use serde::{Serialize, Deserialize};
+use anyhow::Result;
+use ndarray::Array2;
+
 pub mod kvquant {
     use super::*;
-    use half::f16;
     
     pub struct PrefillKVQuant {
         quantizers: Vec<Box<dyn Quantizer>>,
@@ -55,8 +61,32 @@ pub mod kvquant {
         pub num_vectors: usize,
     }
     
+    #[derive(Debug, Clone)]
+    pub struct SystemConfig {
+        pub num_quantizers: usize,
+        pub cache_size: usize,
+        pub quantization_bits: Vec<u8>,
+    }
+    
+    impl Default for SystemConfig {
+        fn default() -> Self {
+            Self {
+                num_quantizers: 4,
+                cache_size: 1024,
+                quantization_bits: vec![4, 6, 8, 16],
+            }
+        }
+    }
+    
+    pub struct TokenizedVector {
+        pub id: String,
+        pub tokens: Vec<u32>,
+        pub embeddings: Array2<f32>,
+    }
+    
     impl PrefillKVQuant {
-        pub fn new(config: &SystemConfig) -> Result<Self> {
+    
+    pub fn new(config: &SystemConfig) -> Result<Self, anyhow::Error> {
             let quantizers: Vec<Box<dyn Quantizer>> = config.quantization_bits
                 .iter()
                 .map(|&bits| {
@@ -83,8 +113,8 @@ pub mod kvquant {
         }
         
         pub fn quantize_vectors(&self, 
-                               tokens: &[diffuse_llm::TokenizedVector], 
-                               bits: &[u8]) -> Result<Vec<CompressedVector>> {
+                               tokens: &[TokenizedVector], 
+                               bits: &[u8]) -> Result<Vec<CompressedVector>, anyhow::Error> {
             let mut compressed = Vec::new();
             
             for (token, &bit_precision) in tokens.iter().zip(bits.iter().cycle()) {

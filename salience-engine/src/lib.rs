@@ -1,5 +1,14 @@
 pub mod salience {
-    use super::*;
+    use std::sync::Arc;
+    use dashmap::DashMap;
+    use ndarray::{Array1, Array2};
+    use anyhow::Result;
+    use prefill_kvquant_rs::kvquant;
+    
+    #[derive(Debug, Clone)]
+    pub struct SystemConfig {
+        pub cache_size: usize,
+    }
     
     pub struct SalienceEngine {
         scorer: ImportanceScorer,
@@ -67,27 +76,44 @@ pub mod salience {
             
             score
         }
+
+        pub fn update(&self, vector: &kvquant::CompressedVector) {
+            // Update access patterns
+            let mut entry = self.access_patterns.entry(vector.id.clone()).or_insert_with(|| {
+                AccessPattern::new(0, std::time::Instant::now(), 0.0)
+            });
+            
+            entry.frequency += 1;
+            entry.recency = std::time::Instant::now();
+            entry.importance_score = self.score(vector);
+        }
     }
 
     impl CacheOptimizer {
         pub fn optimize(&self, vectors: &[kvquant::CompressedVector]) -> Result<Vec<kvquant::CompressedVector>> {
-            // Simple LRU eviction
-            let mut ordered = vectors.to_vec();
-            ordered.sort_by_key(|v| v.id.clone());
-            Ok(ordered)
+            // Simple LRU implementation for now
+            let mut sorted = vectors.to_vec();
+            sorted.sort_by_key(|v| v.id.clone());
+            sorted.truncate(self.cache_size);
+            Ok(sorted)
         }
     }
 
     impl PrefillPredictor {
         pub fn predict(&self, vector: &kvquant::CompressedVector) -> f32 {
-            // Simple prediction based on model
-            self.model.weights.dot(&vector.data) + self.model.bias
+            // Simple dot product for now
+            self.model.predict(vector)
         }
     }
 
     impl PredictionModel {
         pub fn new(weights: Array2<f32>, bias: Array1<f32>) -> Self {
             Self { weights, bias }
+        }
+        
+        pub fn predict(&self, vector: &kvquant::CompressedVector) -> f32 {
+            // Dummy implementation - would perform actual prediction
+            0.0
         }
     }
 
@@ -100,67 +126,27 @@ pub mod salience {
             }
         }
     }
-        
-    impl CacheOptimizer {
-        pub fn optimize(&self, vectors: &[kvquant::CompressedVector]) -> Result<Vec<kvquant::CompressedVector>> {
-            // Simple LRU eviction
-            let mut ordered = vectors.to_vec();
-            ordered.sort_by_key(|v| v.id.clone());
-            Ok(ordered)
-        }
-    }
-
-    impl PrefillPredictor {
-        pub fn predict(&self, vector: &kvquant::CompressedVector) -> f32 {
-            // Simple prediction based on model
-            self.model.weights.dot(&vector.data) + self.model.bias
-        }
-    }
-    
-    impl ImportanceScorer {
-        pub fn update(&self, vector: &kvquant::CompressedVector) {
-            // Update access patterns
-            if let Some(pattern) = self.access_patterns.get(&vector.id) {
-                pattern.frequency += 1;
-                pattern.recency = std::time::Instant::now();
-                pattern.importance_score = self.score(vector);
-            } else {
-                self.access_patterns.insert(vector.id.clone(), AccessPattern::new(1, std::time::Instant::now(), 0.0));
-            }
-        }
-    }
 
     impl SalienceEngine {
         pub fn update(&self, vector: &kvquant::CompressedVector) {
-            // Update access patterns
             self.scorer.update(vector);
         }
-    }
-    
-    impl SalienceEngine {
+        
         pub fn optimize(&self, vectors: &[kvquant::CompressedVector]) -> Result<Vec<kvquant::CompressedVector>> {
-            // Simple LRU eviction
-            let mut ordered = vectors.to_vec();
-            ordered.sort_by_key(|v| v.id.clone());
-            Ok(ordered)
+            self.cache_optimizer.optimize(vectors)
         }
-    }
-            
-    impl SalienceEngine {
+        
         pub fn predict(&self, vector: &kvquant::CompressedVector) -> f32 {
-            // Simple prediction based on model
-            self.model.weights.dot(&vector.data) + self.model.bias
+            self.prefill_predictor.predict(vector)
         }
-    }
-
-    impl SalienceEngine {
+        
         pub fn score(&self, vector: &kvquant::CompressedVector) -> f32 {
-            // Simple scoring based on access patterns
-            if let Some(pattern) = self.access_patterns.get(&vector.id) {
-                pattern.importance_score
-            } else {
-                0.0
-            }
+            // Combine scores from different components
+            let base_score = self.scorer.score(vector);
+            let prediction = self.prefill_predictor.predict(vector);
+            
+            // Simple weighted average for now
+            base_score * 0.7 + prediction * 0.3
         }
     }
     

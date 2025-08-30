@@ -8,6 +8,12 @@ Cargo.lock
 .idea/
 *.swp
 *.swo
+*.swo
+
+# Rust build artifacts
+**/target/
+**/*.rs.bk
+Cargo.lock
 
 # Build artifacts
 **/*.so
@@ -15,9 +21,84 @@ Cargo.lock
 **/*.dll
 **/*.a
 **/*.lib
+**/*.pdb
+**/*.rlib
+**/*.d
 
 # Executables
 **/*.exe
+**/debug/
+**/release/
+
+# IDE specific files
+.vscode/
+.idea/
+*.swp
+*.swo
+*.swo
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Logs and databases
+*.log
+*.sql
+*.sqlite
+
+# Local development files
+.env
+.env.*
+!.env.example
+
+# Test coverage
+**/coverage/
+**/target/cov/
+
+# Benchmark data
+**/target/criterion/
+
+# Generated documentation
+**/doc/
+**/docs/book/
+
+# Large data files
+*.bin
+*.pt
+*.pth
+*.h5
+*.hdf5
+*.npy
+*.npz
+
+# Model checkpoints
+**/checkpoints/
+**/models/
+**/weights/
+
+# Temporary files
+*.tmp
+*.bak
+*.swp
+*~
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Jupyter Notebook
+.ipynb_checkpoints
+
+# Rust
+/target/
+**/*.rs.bk
+Cargo.lock
 **/*.dll
 **/*.so
 **/*.dylib

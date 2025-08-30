@@ -3,6 +3,7 @@ pub mod io_dedup {
     use std::fs::{File, OpenOptions};
     use std::os::unix::io::AsRawFd;
     use memmap2::MmapOptions;
+    use prefill_kvquant_rs::kvquant::CompressedVector;
     
     pub struct IODedupEngine {
         ssd_storage: SSDStorage,

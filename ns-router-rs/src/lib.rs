@@ -1,14 +1,26 @@
+use std::sync::{Arc, RwLock};
+use dashmap::DashMap;
+use ndarray::Array2;
+use petgraph::graph::{DiGraph, NodeIndex};
+use petgraph::algo::dijkstra;
+use anyhow::Result;
+use prefill_kvquant_rs::kvquant;
+
+// A Neuro-Symbolic Router (NS-Router): Manages vector storage and navigation
+// between vectors in SSD storage using a navigation graph.
+// It builds a knowledge graph from the vectors and provides navigation services.
 pub mod ns_router {
     use super::*;
-    use petgraph::graph::{DiGraph, NodeIndex};
-    use petgraph::algo::dijkstra;
     
+    // A Neuro-Symbolic Dictionary: Maps symbols to their meanings and vectors.
+    // It also maintains relationships between symbols.
     pub struct NsRouter {
         dictionary: NeuroSymbolicDictionary,
         navigation_graph: Arc<RwLock<NavigationGraph>>,
         vector_ids: DashMap<String, VectorMetadata>,
     }
     
+    // Maintains a graph of relationships between symbols.
     pub struct NeuroSymbolicDictionary {
         symbols: DashMap<String, Symbol>,
         embeddings: DashMap<String, Array2<f32>>,
@@ -35,6 +47,7 @@ pub mod ns_router {
         pub access_count: usize,
     }
     
+    // Stores the location of a vector in SSD storage.
     #[derive(Debug, Clone)]
     pub struct SSDLocation {
         pub page_id: u64,
@@ -42,6 +55,7 @@ pub mod ns_router {
         pub length: usize,
     }
     
+    // Stores compression information for a vector.
     #[derive(Debug, Clone)]
     pub struct CompressionInfo {
         pub algorithm: String,
@@ -50,7 +64,24 @@ pub mod ns_router {
     }
     
     impl NsRouter {
-        pub fn new(config: &SystemConfig) -> Result<Self> {
+        #[derive(Debug, Clone)]
+    pub struct SystemConfig {
+        pub cache_size: usize,
+        pub similarity_threshold: f32,
+    }
+    
+    // Provides default configuration for the NS-Router.
+    impl Default for SystemConfig {
+        fn default() -> Self {
+            Self {
+                cache_size: 1024,
+                similarity_threshold: 0.8,
+            }
+        }
+    }
+    
+    // Creates a new NS-Router instance.
+    pub fn new(config: &SystemConfig) -> Result<Self, anyhow::Error> {
             Ok(Self {
                 dictionary: NeuroSymbolicDictionary {
                     symbols: DashMap::new(),
@@ -65,7 +96,7 @@ pub mod ns_router {
             })
         }
         
-        pub fn build_graph(&self, vectors: &[kvquant::CompressedVector]) -> Result<()> {
+        pub fn build_graph(&self, vectors: &[kvquant::CompressedVector]) -> Result<(), anyhow::Error> {
             let mut graph = self.navigation_graph.write();
             
             for vector in vectors {
@@ -96,7 +127,7 @@ pub mod ns_router {
             Ok(())
         }
         
-        fn build_edges(&self, graph: &mut NavigationGraph) -> Result<()> {
+        fn build_edges(&self, graph: &mut NavigationGraph) -> Result<(), anyhow::Error> {
             // Implementation would calculate similarities and create edges
             Ok(())
         }

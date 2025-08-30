@@ -9,6 +9,26 @@ name = "fusion_anns"
 path = "src/lib.rs"
 
 [dependencies]
-# Add dependencies specific to this crate here
+# Core dependencies
 serde = { version = "1.0", features = ["derive"] }
 rayon = "1.8"
+anyhow = "1.0"
+thiserror = "1.0"
+tracing = "0.1"
+
+# Data processing
+ndarray = "0.15"
+rand = { version = "0.8.5", features = ["small_rng"] }
+petgraph = "0.6"
+ordered-float = "3.0"
+dashmap = "5.5"
+
+# Async runtime
+tokio = { version = "1.35", features = ["full"] }
+futures = "0.3"
+
+# Concurrency
+parking_lot = "0.12"
+
+# Vector quantization
+prefill-kvquant-rs = { path = "../prefill-kvquant-rs" }

@@ -2,28 +2,32 @@
 name = "zeta-reticula"
 version = "0.1.0"
 edition = "2021"
-authors = ["Your Name <your.email@example.com>"]
-description = "A high-performance LLM inference and serving system"
-license = "MIT"
-repository = "https://github.com/yourusername/diffusion-llm-rs"
-
-[lib]
-name = "zeta_reticula"
-path = "src/lib.rs"
-
-[[example]]
-name = "hello_workspace"
-path = "examples/hello_workspace.rs"
 
 [dependencies]
-# Workspace members
 diffuse-llm-rs = { path = "./diffuse-llm-rs" }
+diffusion-prefill = { path = "./diffusion_prefill" }
 fusion-anns = { path = "./fusion-anns" }
+io-dedup = { path = "./io-dedup" }
 ns-router-rs = { path = "./ns-router-rs" }
 prefill-kvquant-rs = { path = "./prefill-kvquant-rs" }
 salience-engine = { path = "./salience-engine" }
+tokenizer = { path = "./tokenizer" }
 
-# External dependencies
+[workspace]
+members = [
+    "diffuse-llm-rs",
+    "diffusion_prefill",
+    "fusion-anns",
+    "io-dedup",
+    "memory_manager",
+    "ns-router-rs",
+    "prefill-kvquant-rs",
+    "quantization",
+    "salience-engine",
+    "tokenizer",
+]
+
+[workspace.dependencies]
 tokio = { version = "1.35", features = ["full"] }
 serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0"
@@ -37,17 +41,20 @@ anyhow = "1.0"
 thiserror = "1.0"
 tracing = "0.1"
 tracing-subscriber = "0.3"
-half = "2.3"
+half = "2.2.1"
 ndarray = "0.15"
-candle-core = "0.3"
-candle-nn = "0.3"
-candle-transformers = "0.3"
-tokenizers = "0.15"
-arrow = "50.0"
-parquet = "50.0"
+candle-core = { version = "0.9.1" }
+candle-nn = { version = "0.9.1" }
+candle-transformers = { version = "0.9.1" }
+tokenizers = { version = "0.15.2", default-features = false, features = ["onig"] }
+arrow = { version = "=53.0.0" }
+parquet = { version = "=53.0.0" }
 lz4 = "1.24"
 zstd = "0.13"
-rocksdb = "0.21"
+rocksdb = { version = "0.21.0", default-features = false, features = ["lz4"] }
+rand = "0.8.5"
+rand_distr = "0.4.3"
+rand_core = "0.6.4"
 petgraph = "0.6"
 crossbeam = "0.8"
 num_cpus = "1.16"
@@ -55,11 +62,5 @@ libc = "0.2"
 cuda-sys = "0.2"
 opencl3 = "0.9"
 
-[workspace]
-members = [
-    "diffuse-llm-rs",
-    "prefill-kvquant-rs",
-    "ns-router-rs",
-    "salience-engine",
-    "fusion-anns"
-]
+[dev-dependencies]
+criterion = "0.5"

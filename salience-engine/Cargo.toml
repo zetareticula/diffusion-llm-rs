@@ -9,6 +9,15 @@ name = "salience_engine"
 path = "src/lib.rs"
 
 [dependencies]
-# Add dependencies specific to this crate here
 dashmap = "5.5"
 parking_lot = "0.12"
+anyhow = "1.0"
+thiserror = "1.0"
+tracing = "0.1"
+serde = { version = "1.0", features = ["derive"] }
+rayon = "1.8"
+rand = { version = "0.8.5", features = ["small_rng"] }
+ordered-float = "3.0"
+tokio = { version = "1.0", features = ["full"] }
+ndarray = "0.15"
+prefill-kvquant-rs = { path = "../prefill-kvquant-rs" }

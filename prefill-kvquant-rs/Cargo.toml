@@ -2,12 +2,23 @@
 name = "prefill-kvquant-rs"
 version = "0.1.0"
 edition = "2021"
-description = "KV cache quantization for efficient prefilling"
+description = "KV cache quantization for prefill operations"
 
 [lib]
 name = "prefill_kvquant_rs"
 path = "lib.rs"
 
 [dependencies]
-# Add dependencies specific to this crate here
 serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+anyhow = "1.0"
+thiserror = "1.0"
+tracing = "0.1"
+candle-core = { version = "0.9.1" }
+rayon = "1.8"
+rand = "0.8.5"
+num-traits = "0.2"
+num-derive = "0.4"
+dashmap = "5.5"
+half = { version = "2.2", features = ["serde"] }
+ndarray = "0.15"
