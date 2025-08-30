@@ -1,0 +1,25 @@
+version: 2
+updates:
+  # Enable version updates for Cargo
+  - package-ecosystem: "cargo"
+    # Look for a `Cargo.toml` in the `root` directory
+    directory: "/"
+    # Check for updates to GitHub Actions
+    schedule:
+      interval: "weekly"
+    # Labels to apply to pull requests
+    labels:
+      - "dependencies"
+    # Limit the number of open pull requests for version updates
+    open-pull-requests-limit: 10
+    # Assign reviewers to pull requests
+    reviewers:
+      - "your-github-username"
+    # Add milestone to pull requests
+    milestone: 1
+
+  # Enable version updates for GitHub Actions
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"

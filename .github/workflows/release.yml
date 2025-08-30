@@ -1,0 +1,87 @@
+name: Release
+
+on:
+  release:
+    types: [created]
+  workflow_dispatch:
+    # Allow manual triggering
+    inputs:
+      version:
+        description: 'Version to release (e.g., 0.1.0)'
+        required: true
+        default: ''
+
+defaults:
+  run:
+    shell: bash
+
+jobs:
+  create-release:
+    name: Create Release
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+      
+      - name: Set up Rust
+        uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+          profile: minimal
+          override: true
+      
+      - name: Get version
+        id: get_version
+        run: |
+          if [[ -z "${{ github.event.inputs.version }}" && "${{ github.event_name }}" == "release" ]]; then
+            echo "version=${GITHUB_REF#refs/tags/v}" >> $GITHUB_OUTPUT
+          else
+            echo "version=${{ github.event.inputs.version }}" >> $GITHUB_OUTPUT
+          fi
+      
+      - name: Verify version in Cargo.toml
+        run: |
+          VERSION=$(grep -m1 '^version = ' Cargo.toml | cut -d '\"' -f 2)
+          if [[ "$VERSION" != "${{ steps.get_version.outputs.version }}"* ]]; then
+            echo "Version mismatch: Cargo.toml has $VERSION but release is for ${{ steps.get_version.outputs.version }}"
+            exit 1
+          fi
+      
+      - name: Build release
+        run: |
+          cargo build --release --all-features
+          
+      - name: Create release archive
+        run: |
+          mkdir -p release
+          cp target/release/diffusion-llm-rs release/
+          tar -czvf diffusion-llm-rs-${{ steps.get_version.outputs.version }}-x86_64-unknown-linux-gnu.tar.gz -C release .
+          
+      - name: Upload release assets
+        uses: softprops/action-gh-release@v1
+        with:
+          files: |
+            diffusion-llm-rs-${{ steps.get_version.outputs.version }}-x86_64-unknown-linux-gnu.tar.gz
+          tag_name: v${{ steps.get_version.outputs.version }}
+          name: v${{ steps.get_version.outputs.version }}
+          body: |
+            ## Release Notes
+            
+            ### New Features
+            - Add your new features here
+            
+            ### Bug Fixes
+            - List bug fixes here
+            
+            ### Dependencies
+            - Updated dependencies
+            
+            ### Chores
+            - Maintenance updates
+          draft: false
+          prerelease: false
+          generate_release_notes: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
