@@ -42,7 +42,7 @@ thiserror = "1.0"
 tracing = "0.1"
 tracing-subscriber = "0.3"
 half = "2.2.1"
-ndarray = "0.15"
+ndarray = "0.16"
 candle-core = { version = "0.9.1" }
 candle-nn = { version = "0.9.1" }
 candle-transformers = { version = "0.9.1" }
