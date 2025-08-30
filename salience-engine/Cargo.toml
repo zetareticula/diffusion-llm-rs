@@ -17,7 +17,7 @@ tracing = "0.1"
 serde = { version = "1.0", features = ["derive"] }
 rayon = "1.8"
 rand = { version = "0.8.5", features = ["small_rng"] }
-ordered-float = "3.0"
+ordered-float = "5.0"
 tokio = { version = "1.0", features = ["full"] }
 ndarray = "0.15"
 prefill-kvquant-rs = { path = "../prefill-kvquant-rs" }
