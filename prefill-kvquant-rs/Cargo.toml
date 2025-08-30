@@ -21,4 +21,4 @@ num-traits = "0.2"
 num-derive = "0.4"
 dashmap = "5.5"
 half = { version = "2.2", features = ["serde"] }
-ndarray = "0.15"
+ndarray = "0.16"
