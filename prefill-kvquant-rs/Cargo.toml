@@ -19,6 +19,6 @@ rayon = "1.8"
 rand = "0.8.5"
 num-traits = "0.2"
 num-derive = "0.4"
-dashmap = "5.5"
+dashmap = "6.1"
 half = { version = "2.2", features = ["serde"] }
 ndarray = "0.15"
