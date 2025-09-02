@@ -14,11 +14,7 @@
 
 use ndarray::array;
 use num_traits::Float;
-use quantization::{
-    QuantizationType,
-    QuantizationError,
-    quant_utils,
-};
+use quantization::prelude::*;
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
     // Create a sample tensor

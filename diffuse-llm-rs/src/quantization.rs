@@ -1,3 +1,17 @@
+//! # Zeta Reticula Apache 2.0 License
+//! Copyright (c) 2025-present The Zeta Reticula Authors.
+//! Licensed under the Apache License, Version 2.0 (the "License");
+//! you may not use this file except in compliance with the License.
+//! You may obtain a copy of the License at
+//!     http://www.apache.org/licenses/LICENSE-2.0
+//! Unless required by applicable law or agreed to in writing, software
+//! distributed under the License is distributed on an "AS IS" BASIS,
+//! WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+//! See the License for the specific language governing permissions and
+//! limitations under the License.
+
+
+
 //! Quantization utilities for the diffusion model
 //! 
 //! This module provides functionality for quantizing and dequantizing tensors
@@ -8,6 +22,7 @@ use ndarray::{Array1, Array2, Array3};
 use quantiles::ckms::CKMS;
 use std::sync::Arc;
 use std::sync::Mutex;
+
 
 /// Quantizes a tensor to the specified number of bits
 /// 
@@ -51,6 +66,8 @@ pub fn quantize_tensor(data: &[f32], bits: u8) -> (Vec<u8>, f32, f32) {
     
     (quantized, scale, zero_point as f32)
 }
+
+
 
 /// Dequantizes a tensor back to f32
 /// 
@@ -259,3 +276,4 @@ mod tests {
         assert!(zero_point >= 0.0, "Zero point should be non-negative");
     }
 }
+

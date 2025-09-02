@@ -1,3 +1,24 @@
+//! # Zeta Reticula Apache 2.0 License
+//! Copyright (c) 2025-present The Zeta Reticula Authors.
+//! Licensed under the Apache License, Version 2.0 (the "License");
+//! you may not use this file except in compliance with the License.
+//! You may obtain a copy of the License at
+//!     http://www.apache.org/licenses/LICENSE-2.0
+//! Unless required by applicable law or agreed to in writing, software
+//! distributed under the License is distributed on an "AS IS" BASIS,
+//! WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+//! See the License for the specific language governing permissions and
+//! limitations under the License.
+
+//! IO deduplication implementation
+//! This module provides an IO deduplication implementation for vector storage.
+//! It includes an SSD storage layer with direct I/O support and a deduplication buffer.
+//! The deduplication buffer uses a hash table to store unique vectors and their hashes.
+//! It also includes an I/O merger to merge I/Os within mini-batches.
+//! Finally, it includes a read amplification monitor to track the read amplification.
+//! The SSD storage layer uses memmap2 for memory mapping and provides a simple interface
+//! for reading and writing data to the SSD.
+
 pub mod io_dedup {
     use super::*;
     use std::fs::{File, OpenOptions};

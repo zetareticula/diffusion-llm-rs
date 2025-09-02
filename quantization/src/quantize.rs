@@ -1,8 +1,61 @@
+//! # Zeta Reticula Apache 2.0 License
+//! Copyright (c) 2025-present The Zeta Reticula Authors.
+//! Licensed under the Apache License, Version 2.0 (the "License");
+//! you may not use this file except in compliance with the License.
+//! You may obtain a copy of the License at
+//!     http://www.apache.org/licenses/LICENSE-2.0
+//! Unless required by applicable law or agreed to in writing, software
+//! distributed under the License is distributed on an "AS IS" BASIS,
+//! WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+//! See the License for the specific language governing permissions and
+//! limitations under the License.
+
+//! Quantization module for LLM model optimization
+//! 
+//! This module provides functionality for quantizing LLM weights and activations
+//! to lower precision formats to improve inference performance and reduce memory usage.
+
+#![warn(missing_docs)]
+#![allow(clippy::needless_doctest_main)]
+
+pub mod calibrate;
+pub mod error;
+pub mod types;
+
 use ndarray::{ArrayD, ArrayViewD, IxDyn};
 use num_traits::{Float, FromPrimitive, ToPrimitive};
 use std::marker::PhantomData;
 use crate::{QuantizationParams, QuantizedTensor, Result, QuantizationError};
 use crate::types::DType;
+use crate::calibrate::CalibrationData;
+
+
+
+//! Types and traits for quantization
+//! 
+//! This module provides types and traits for quantization operations.
+//! 
+//! # Usage
+//! ```rust
+//! use quantization::quantize::Quantizer;
+//! ```
+//! 
+//! # Examples
+//! ```rust
+//! use quantization::quantize::DefaultQuantizer;
+//! let quantizer = DefaultQuantizer::new(8, false, None);
+//! let data = ndarray::array![1.0, 2.0, 3.0, 4.0];
+//! let quantized = quantizer.quantize(data.view(), QuantizationType::Int8).unwrap();
+//! let dequantized = quantizer.dequantize(&quantized).unwrap();
+//! ```
+//! 
+//! # Error Handling
+//! Both `quantize` and `dequantize` functions return a `Result` type, which can be used to handle errors.
+//! Possible errors include invalid bit sizes and I/O errors.
+//! 
+//! # Notes
+//! The quantization process uses half precision floating point numbers (f16) for quantization.
+//! This provides a good balance between precision and memory usage.
 
 /// Supported quantization types
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
