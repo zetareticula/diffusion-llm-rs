@@ -17,7 +17,7 @@ thiserror = "1.0"
 tracing = "0.1"
 
 # Data processing
-ndarray = "0.15"
+ndarray = "0.16"
 rand = { version = "0.8.5", features = ["small_rng"] }
 petgraph = "0.6"
 ordered-float = "3.0"
