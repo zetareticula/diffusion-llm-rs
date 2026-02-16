@@ -60,7 +60,7 @@ jobs:
           tar -czvf diffusion-llm-rs-${{ steps.get_version.outputs.version }}-x86_64-unknown-linux-gnu.tar.gz -C release .
           
       - name: Upload release assets
-        uses: softprops/action-gh-release@v1
+        uses: softprops/action-gh-release@v2
         with:
           files: |
             diffusion-llm-rs-${{ steps.get_version.outputs.version }}-x86_64-unknown-linux-gnu.tar.gz
